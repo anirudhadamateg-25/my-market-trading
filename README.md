@@ -1,5 +1,7 @@
 # My Market Trading App
 
+# Alrights Reserved by Anirudha Damate including DATAfiles
+
 A simple Streamlit application for market trading analysis.
 
 ## Installation

@@ -66,9 +66,11 @@ else:
     st.dataframe(filtered_data, hide_index=True)
     st.write(f"Filtered Data: {filtered_data.shape[0]} rows and {filtered_data.shape[1]} columns.")
 
-
+    st.subheader("All Data is personal trade data and not advisory in any form.") 
+    st.subheader("All rights reserved to VCapitals(Anirudha Damate).") 
+    
     # Download button for filtered data
-    csv = filtered_data.to_csv(index=False).encode('utf-8')
+    #csv = filtered_data.to_csv(index=False).encode('utf-8')
     # st.download_button(
     #     label="Download Filtered Data as CSV",
     #     data=csv,
