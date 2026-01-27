@@ -46,7 +46,7 @@ else:
 
     # Define your KPI values
     capital = 900000
-    total_turnover = filtered_data['Invested'].sum()
+    total_turnover = filtered_data['INVESTED'].sum()
     total_gained_profit = filtered_data['PROFIT/ABS'].sum()
     avg_percentage = total_gained_profit / capital * 100 if total_turnover != 0 else 0
 
