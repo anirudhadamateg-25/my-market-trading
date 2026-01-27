@@ -69,12 +69,13 @@ else:
 
     # Download button for filtered data
     csv = filtered_data.to_csv(index=False).encode('utf-8')
-    st.download_button(
-        label="Download Filtered Data as CSV",
-        data=csv,
-        file_name='filtered_data.csv',
-        mime='text/csv',
-    )   
+    # st.download_button(
+    #     label="Download Filtered Data as CSV",
+    #     data=csv,
+    #     file_name='filtered_data.csv',
+    #     mime='text/csv',
+    # )   
+    
     # Additional Charts
     st.subheader("Additional Charts")       
     col1, col2,col3 = st.columns(3)
