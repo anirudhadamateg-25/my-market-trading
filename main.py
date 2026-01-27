@@ -24,6 +24,10 @@ else:
     selected_strategy = st.sidebar.selectbox("Select a Strategy", strategy_options)
     #show_strategy_bar_chart = st.sidebar.checkbox("Show Strategy Bar Chart", value=True)
     
+    st.sidebar.title("Terms and Conditions:")
+    st.sidebar.text("All Data is Personal Trade data and not advisory in any form.") 
+    st.sidebar.text("All rights reserved to Anirudha Damate.") 
+
     #old bar chart imlementation
     #if show_strategy_bar_chart:
         #strategy_counts = data['STRATEGY'].value_counts()
@@ -66,9 +70,6 @@ else:
     st.dataframe(filtered_data, hide_index=True)
     st.write(f"Filtered Data: {filtered_data.shape[0]} rows and {filtered_data.shape[1]} columns.")
 
-    st.subheader("All Data is personal trade data and not advisory in any form.") 
-    st.subheader("All rights reserved to VCapitals(Anirudha Damate).") 
-    
     # Download button for filtered data
     #csv = filtered_data.to_csv(index=False).encode('utf-8')
     # st.download_button(
