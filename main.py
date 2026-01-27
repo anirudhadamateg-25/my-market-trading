@@ -1,8 +1,8 @@
 import streamlit as st
 import pandas as pd
 
-st.title("VCapitals Trade Study")
-st.write("This is a simple Data Analysis Application.") 
+st.title("Dashboard")
+st.subheader("VCapitals Trade Data Analysis") 
 st.set_page_config(layout="wide")
 
 # Load data from Google Sheets
@@ -50,17 +50,20 @@ else:
     total_gained_profit = filtered_data['PROFIT/ABS'].sum()
     avg_percentage = total_gained_profit / capital * 100 if total_turnover != 0 else 0
 
+    max_return_trade = filtered_data['PROFIT/ABS'].max()
+    min_return_trade = filtered_data['PROFIT/ABS'].min()
 
     # Display the metric
-    col1, col2, col3,col4 = st.columns(4)
+    col1, col2, col3,col4,col5,col6 = st.columns(6)
     #col1.metric("Total Capital", f"₹{capital:,.2f}")
-    col2.metric("Total Turnover", f"₹{total_turnover:,.2f}")
-    col3.metric("Total Realised Gains", f"₹{total_gained_profit:,.2f}")
+    col2.metric("Total Turnover", f"₹{total_turnover/100000:,.1f}L",help=f"Value: {total_turnover:,.2f}")
+    col3.metric("Total Realised Gains", f"₹{total_gained_profit/100000:,.1f}L",help=f"Value: {total_gained_profit:,.2f}")
     col4.metric("Avg Percentage Gains", f"{avg_percentage:.2f}%")
+    col5.metric("Max Return Trade", f"₹{max_return_trade:,.2f}")
+    col6.metric("Min Return Trade", f"₹{min_return_trade:,.2f}")
+    
 
-
-
-    st.dataframe(filtered_data)
+    st.dataframe(filtered_data, hide_index=True)
     st.write(f"Filtered Data: {filtered_data.shape[0]} rows and {filtered_data.shape[1]} columns.")
 
 
@@ -74,7 +77,7 @@ else:
     )   
     # Additional Charts
     st.subheader("Additional Charts")       
-    col1, col2 = st.columns(2)
+    col1, col2,col3 = st.columns(3)
     with col1:
         st.write("Strategy Distribution")
         strategy_counts = filtered_data['STRATEGY'].value_counts()
@@ -83,6 +86,28 @@ else:
         st.write("Platform Distribution")
         platform_counts = filtered_data['PLATFORM'].value_counts()
         st.bar_chart(platform_counts)   
+    with col3:
+        st.write("Monthly Realised Gains")
+        monthly_profit = filtered_data.copy()
+        monthly_profit["EXIT DATE"] = pd.to_datetime(monthly_profit["EXIT DATE"], errors="coerce")
+        monthly_profit = monthly_profit.dropna(subset=["EXIT DATE"])
+        monthly_profit["Month"] = monthly_profit["EXIT DATE"].dt.to_period("M").astype(str)
+        monthly_profit = (
+            monthly_profit.groupby("Month")["PROFIT/ABS"].sum().reset_index()
+            .sort_values("Month")
+        )
+        st.bar_chart(monthly_profit.set_index("Month")[["PROFIT/ABS"]])   
+
+    with st.expander("Stockwise Realised Gains"):  
+        monthly_profit_stockwise = filtered_data.copy()     
+        monthly_profit_stockwise = (
+            monthly_profit_stockwise.groupby("SCRIPT")["PROFIT/ABS"].sum().reset_index()
+            .sort_values("SCRIPT")
+        )
+        st.dataframe(monthly_profit_stockwise.rename(columns={"SCRIPT": "Stock", "PROFIT/ABS": "Total Profit"}), hide_index=True)
+        
+            
+      
  
  
 
