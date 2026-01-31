@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 
 st.set_page_config(layout="wide")
+
 # Initialize session state for authentication
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
@@ -9,27 +10,31 @@ if "authenticated" not in st.session_state:
 
 # Authentication check
 if not st.session_state.authenticated:
-    st.title("🔐 Login Required")
-    st.subheader("VCapitals Trade Data Analysis")
+    st.title("🔐 VCapitals Trade Data Analysis")
+    st.info("👈 Please login using the sidebar to access the dashboard.")
     
-    with st.form("login_form"):
-        username = st.text_input("Username")
-        password = st.text_input("Password", type="password")
-        submit = st.form_submit_button("Login")
-        
-        if submit:
-            # Check credentials against secrets
-            try:
-                if username in st.secrets["passwords"] and st.secrets["passwords"][username] == password:
-                    st.session_state.authenticated = True
-                    st.session_state.username = username
-                    st.rerun()
-                else:
-                    st.error("❌ Invalid username or password")
-            except Exception as e:
-                st.error("⚠️ Authentication configuration error. Please check secrets.toml")
+    # Login form in sidebar
+    with st.sidebar:
+        st.title("Login")
+        with st.form("login_form"):
+            username = st.text_input("Username")
+            password = st.text_input("Password", type="password")
+            submit = st.form_submit_button("Login", use_container_width=True)
+            
+            if submit:
+                # Check credentials against secrets
+                try:
+                    if username in st.secrets["passwords"] and st.secrets["passwords"][username] == password:
+                        st.session_state.authenticated = True
+                        st.session_state.username = username
+                        st.rerun()
+                    else:
+                        st.error("❌ Invalid credentials")
+                except Exception as e:
+                    st.error("⚠️ Config error")
     
     st.stop()  # Stop execution if not authenticated
+
 
 st.title("Dashboard")
 st.subheader("VCapitals Trade Data Analysis") 
@@ -46,7 +51,7 @@ if data.empty:
     st.write("No data available.")
 else:
     #print( data.columns)
-
+    st.set_page_config(layout="wide")
     #sidebar for strategy selection
     platform_options = ["All"] + list(data['PLATFORM'].unique())
     selected_platform = st.sidebar.selectbox("Select a Platform", platform_options)
@@ -54,6 +59,14 @@ else:
     selected_strategy = st.sidebar.selectbox("Select a Strategy", strategy_options)
     #show_strategy_bar_chart = st.sidebar.checkbox("Show Strategy Bar Chart", value=True)
     
+    # Add logout button
+    st.sidebar.divider()
+    if st.sidebar.button("🚪 Logout"):
+        st.session_state.authenticated = False
+        st.session_state.username = ""
+        st.rerun()
+    st.sidebar.divider()
+
     st.sidebar.title("Terms and Conditions:")
     st.sidebar.text("All Data is Personal Trade data and not advisory in any form.") 
     st.sidebar.text("All rights reserved to Anirudha Damate.") 
