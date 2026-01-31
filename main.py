@@ -1,12 +1,42 @@
 import streamlit as st
 import pandas as pd
 
+st.set_page_config(layout="wide")
+# Initialize session state for authentication
+if "authenticated" not in st.session_state:
+    st.session_state.authenticated = False
+    st.session_state.username = ""
+
+# Authentication check
+if not st.session_state.authenticated:
+    st.title("🔐 Login Required")
+    st.subheader("VCapitals Trade Data Analysis")
+    
+    with st.form("login_form"):
+        username = st.text_input("Username")
+        password = st.text_input("Password", type="password")
+        submit = st.form_submit_button("Login")
+        
+        if submit:
+            # Check credentials against secrets
+            try:
+                if username in st.secrets["passwords"] and st.secrets["passwords"][username] == password:
+                    st.session_state.authenticated = True
+                    st.session_state.username = username
+                    st.rerun()
+                else:
+                    st.error("❌ Invalid username or password")
+            except Exception as e:
+                st.error("⚠️ Authentication configuration error. Please check secrets.toml")
+    
+    st.stop()  # Stop execution if not authenticated
+
 st.title("Dashboard")
 st.subheader("VCapitals Trade Data Analysis") 
-st.set_page_config(layout="wide")
+
 
 # Load data from Google Sheets
-data = pd.read_csv("https://docs.google.com/spreadsheets/d/1QEi3eh-q18sjjy1P2SFiCy32AMu3-u3IFZa2BUM-7Ss/export?format=csv")
+data = pd.read_csv(st.secrets["data"]["csv_url"])
 
 st.write(f"Data Loaded: {data.shape[0]} rows and {data.shape[1]} columns.")
 #st.write("Data Preview:")
@@ -67,7 +97,7 @@ else:
     col6.metric("Min Return Trade", f"₹{min_return_trade:,.2f}")
     
 
-    st.dataframe(filtered_data, hide_index=True)
+    st.dataframe(filtered_data, hide_index=True, use_container_width=True, column_config={}, key="filtered_data_table")
     st.write(f"Filtered Data: {filtered_data.shape[0]} rows and {filtered_data.shape[1]} columns.")
 
     # Download button for filtered data
