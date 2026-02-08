@@ -45,7 +45,7 @@ st.sidebar.divider()
 
 # Page navigation
 st.set_page_config(layout="wide")
-page = st.sidebar.radio("📊 Navigation", ["Dashboard", "Live Position"])
+page = st.sidebar.radio("📊 Menu", ["Dashboard", "Live Position"])
 
 if page == "Dashboard":
     st.title("Dashboard")
@@ -125,15 +125,15 @@ if page == "Dashboard":
 
 # ...existing code...
 elif page == "Live Position":
-    st.title("📈 Live Position")
+    st.title("Live Position")
 
     
     try:
         # Read live position data from Google Sheets
         live_data = pd.read_csv(st.secrets["data"]["csv_live_url"])
         
-        st.subheader(f"Live Positions ({live_data.shape[0]} records)")
-
+        
+    
         # Sidebar for strategy selection
         platform_options = ["All"] + list(live_data['Market Cap'].unique())
         selected_platform = st.sidebar.selectbox("Select a Market Cap", platform_options)
@@ -146,22 +146,23 @@ elif page == "Live Position":
         if selected_strategy != "All":
             filtered_data = filtered_data[filtered_data['Strategy Name'] == selected_strategy]
 
+        st.write(f"Data Loaded: {filtered_data.shape[0]} rows and {filtered_data.shape[1]} columns.")
         # Define your KPI values
-        capital = 900000     
+           
         
-        if "Gain" in live_data.columns:
-            live_data["Gain"] = pd.to_numeric(live_data["Gain"], errors="coerce")
-            top_gainer = live_data["Gain"].max()
-            top_looser = live_data["Gain"].min()
+        if "Gain" in filtered_data.columns:
+            filtered_data["Gain"] = pd.to_numeric(filtered_data["Gain"], errors="coerce")
+            top_gainer = filtered_data["Gain"].max()
+            top_looser = filtered_data["Gain"].min()
         else:
             top_gainer = None
             top_looser = None
 
         # Display the metric
-        col1, col2, col3 = st.columns(3)       
-        col1.metric("Capital", f"₹{capital/100000:,.1f}L", help=f"Value: ₹{capital:,.2f}")
-        col2.metric("Top Gainer", f"₹{top_gainer:,.2f}%" if top_gainer is not None else "N/A", help=f"Value: ₹{top_gainer:,.2f}" if top_gainer is not None else "N/A")
-        col3.metric("Top Looser", f"₹{top_looser:,.2f}%" if top_looser is not None else "N/A", help=f"Value: ₹{top_looser:,.2f}" if top_looser is not None else "N/A")
+        col1, col2, col3,col4 = st.columns(4)       
+      
+        col3.metric("Top Gainer", f"₹{top_gainer:,.2f}%" if top_gainer is not None else "N/A", help=f"Value: ₹{top_gainer:,.2f}" if top_gainer is not None else "N/A")
+        col4.metric("Top Looser", f"₹{top_looser:,.2f}%" if top_looser is not None else "N/A", help=f"Value: ₹{top_looser:,.2f}" if top_looser is not None else "N/A")
 
         st.dataframe(filtered_data, hide_index=True, use_container_width=True)       
 
