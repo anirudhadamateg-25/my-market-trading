@@ -42,7 +42,7 @@ st.sidebar.divider()
 
 # Page navigation
 st.set_page_config(layout="wide")
-page = st.sidebar.radio("📊 Menu", ["Live Position","Dashboard"])
+page = st.sidebar.radio("📊 Menu", ["Live Position","Dashboard","Strategy"])
 
 if page == "Dashboard":
     st.title("Dashboard")
@@ -80,13 +80,16 @@ if page == "Dashboard":
         min_return_trade = filtered_data['PROFIT/ABS'].min()
 
         # Display the metric
-        col1, col2, col3, col4, col5, col6 = st.columns(6)
-        col2.metric("Total Turnover", f"₹{total_turnover/100000:,.1f}L", help=f"Value: {total_turnover:,.2f}")
+        col1, col2, col3, col4, col5, col6, col7, col8 = st.columns(8)
+        col1.metric("Total Target", f"₹{(capital *30/100)/100000:,.1f}L", help=f"Value: {capital *30/100:,.2f}")
+        col2.metric("Remaining Target", f"₹{((capital *30/100) - total_gained_profit)/100000:,.1f}L", help=f"Value: {(capital *30/100) - total_gained_profit:,.2f}")
         col3.metric("Total Realised Gains", f"₹{total_gained_profit/100000:,.1f}L", help=f"Value: {total_gained_profit:,.2f}")
-        col4.metric("Avg Percentage Gains", f"{avg_percentage:.2f}%")
-        col5.metric("Max Return Trade", f"₹{max_return_trade:,.2f}")
-        col6.metric("Min Return Trade", f"₹{min_return_trade:,.2f}")
-        
+        col4.metric("Total Turnover", f"₹{total_turnover/100000:,.1f}L", help=f"Value: {total_turnover:,.2f}")
+        col5.metric("Avg Percentage Gains", f"{avg_percentage:.2f}%")
+        col6.metric("Max Return Trade", f"₹{max_return_trade/1000:,.2f}k", help=f"Value: ₹{max_return_trade:,.2f}")
+        col7.metric("Min Return Trade", f"₹{min_return_trade/1000:,.2f}k", help=f"Value: ₹{min_return_trade:,.2f}")
+        col8.metric("Total Trades", f"{filtered_data.shape[0]}")
+
         st.dataframe(filtered_data, hide_index=True, use_container_width=True, column_config={}, key="filtered_data_table")
         st.write(f"Filtered Data: {filtered_data.shape[0]} rows and {filtered_data.shape[1]} columns.")
         
@@ -134,7 +137,7 @@ if page == "Dashboard":
                         "AVG_PROFIT_PCT": st.column_config.NumberColumn(
                             "Avg Profit %",
                             format="%.2f%%"
-                        ),
+                        )
                     },
                     use_container_width=True
             )
@@ -173,9 +176,6 @@ elif page == "Live Position":
             top_gainer = None
             top_looser = None
 
-        total_percentage_gain = filtered_data['Current Value'].sum()
-        print("Total Percentage Gain:",total_percentage_gain)
-        print(filtered_data['Current Value'].sum()) 
        
         # Display the metric
         col1, col2, col3,col4 = st.columns(4)       
@@ -203,6 +203,88 @@ elif page == "Live Position":
     except Exception as e:
         st.error("Error loading live position data")
 # ...existing code...
+elif page == "Strategy":
+    with st.expander("Reverse Head & Shoulders"):
+        st.markdown("""
+        In a world full of **complex indicators**, we keep it **simple** by focusing on  **Price Action** and **Quality**.
+        Most textbooks teach the Reverse Head & Shoulders (RHS) pattern in a way that leads to many **fake-outs**.
+        This approach uses **strict filters** so we only participate in **high-probability trades**. """)
+
+        st.divider()
+
+        # --------------------------------------------------
+        # Section 1
+        # --------------------------------------------------
+        st.subheader("🧬 1. The Anatomy of a Perfect Pattern")
+
+        st.markdown("""
+        A standard Reverse Head & Shoulders has:
+        - A **Left Shoulder**
+        - A **Head** (the lowest point)
+        - A **Right Shoulder**
+
+        However, for us to consider it a **“Vivek Singhal” RHS**, it must meet **strict criteria**. """)
+
+        st.subheader("📏 The 180-Degree Neckline")
+        st.markdown("""
+        - The **neckline must be flat and horizontal**
+        - No upward or downward slope is allowed
+        - A flat line clearly shows **where the seller is sitting**
+        """)
+
+        st.subheader("🔗 The Three Connection Points")
+        st.markdown("""
+        The horizontal neckline must **perfectly touch**:
+        1. The start of the **Left Shoulder**
+        2. The peak **after the Head**
+        3. The start of the **Right Shoulder**
+        """)
+
+        st.divider()
+
+        # --------------------------------------------------
+        # Section 2
+        # --------------------------------------------------
+        st.subheader("💎 2. The Fundamental Filter (The V40 Rule)")
+
+        st.markdown("""
+        We **never apply technical patterns to junk stocks**.
+        This strategy is applied **only** to companies that are:
+        """)
+
+        st.markdown("""
+        - 🏛️ **V40 or V40 Next companies**
+        - 💼 **Financially stable businesses**
+        """)
+
+        st.info("""
+        📌 If the **business quality is weak**,  the chart pattern will eventually **fail**.
+            **Business first. Chart second.**   """)
+
+        st.divider()
+
+        # --------------------------------------------------
+        # Section 3
+        # --------------------------------------------------
+        st.subheader("🚀 3. The “Early” Entry Strategy")
+
+        st.markdown(""" Most traders wait for a **neckline breakout**.   We don’t. """)
+
+        st.markdown("""
+        ### What we look for instead:
+        - A **Base Formation** inside the **Right Shoulder**
+        - Small consolidation
+        - Followed by a **strong Green Candle 🕯️ (closing basis)**
+        """)
+
+        st.success("""
+        ✅ This gives:
+        - Better entry price  
+        - Smaller stop-loss  
+        - Higher risk-reward
+        """)
+
+        st.divider()
 
 st.sidebar.divider()
 
