@@ -36,23 +36,22 @@ if not st.session_state.authenticated:
     st.stop()  # Stop execution if not authenticated
 
 
-# Add logout button
-if st.sidebar.button("🚪 Logout"):
-    st.session_state.authenticated = False
-    st.session_state.username = ""
-    st.rerun()
+st.sidebar.title("VCapitals Analysis") 
 st.sidebar.divider()
+
 
 # Page navigation
 st.set_page_config(layout="wide")
-page = st.sidebar.radio("📊 Menu", ["Dashboard", "Live Position"])
+page = st.sidebar.radio("📊 Menu", ["Live Position","Dashboard"])
 
 if page == "Dashboard":
     st.title("Dashboard")
-    st.subheader("VCapitals Trade Data Analysis") 
+    
 
     # Load data from Google Sheets
-    data = pd.read_csv(st.secrets["data"]["csv_url"])
+    data = pd.read_csv(st.secrets["data"]["csv_url"],skip_blank_lines=True,skiprows=2,usecols=["ENTRY DATE", "EXIT DATE", "SCRIPT", "STRATEGY", "PLATFORM", "INVESTED", "PROFIT/ABS","PROFIT/%","EQUITY CURVE"])
+    
+
 
     st.write(f"Data Loaded: {data.shape[0]} rows and {data.shape[1]} columns.")
 
@@ -73,7 +72,7 @@ if page == "Dashboard":
 
         # Define your KPI values
         capital = 900000
-        total_turnover = filtered_data['INVESTED'].sum()
+        total_turnover = filtered_data['INVESTED'].sum() 
         total_gained_profit = filtered_data['PROFIT/ABS'].sum()
         avg_percentage = total_gained_profit / capital * 100 if total_turnover != 0 else 0
 
@@ -117,23 +116,39 @@ if page == "Dashboard":
         with st.expander("Stockwise Realised Gains"):  
             monthly_profit_stockwise = filtered_data.copy()     
             monthly_profit_stockwise = (
-                monthly_profit_stockwise.groupby("SCRIPT")["PROFIT/ABS"].sum().reset_index()
-                .sort_values("SCRIPT")
+                monthly_profit_stockwise.groupby("SCRIPT", as_index=False)
+                    .agg(
+                        TOTAL_PROFIT_ABS=("PROFIT/ABS", "sum"),
+                        AVG_PROFIT_PCT=("PROFIT/%", "mean")
+                    )
+                    .sort_values("SCRIPT")                    
             )
-            st.dataframe(monthly_profit_stockwise.rename(columns={"SCRIPT": "Stock", "PROFIT/ABS": "Total Profit"}), hide_index=True)
 
+            st.dataframe(
+                    monthly_profit_stockwise,
+                    column_config={
+                        "TOTAL_PROFIT_ABS": st.column_config.NumberColumn(
+                            "Total Realised Gains",
+                            format="₹%.2f"
+                        ),
+                        "AVG_PROFIT_PCT": st.column_config.NumberColumn(
+                            "Avg Profit %",
+                            format="%.2f%%"
+                        ),
+                    },
+                    use_container_width=True
+            )
 
 # ...existing code...
-elif page == "Live Position":
+elif page == "Live Position": 
     st.title("Live Position")
 
     
     try:
         # Read live position data from Google Sheets
-        live_data = pd.read_csv(st.secrets["data"]["csv_live_url"])
-        
-        
-    
+        live_data = pd.read_csv(st.secrets["data"]["csv_live_url"],skip_blank_lines=True,skiprows=25,usecols=["Stock", "Strategy Name", "Market Cap", "Broker", "Gain","Current Value","Invested Value","Target Price","Potential Gain","Remaining Gain"])
+        live_data = live_data.iloc[25:48]  # Limit to first 48 rows
+
         # Sidebar for strategy selection
         platform_options = ["All"] + list(live_data['Market Cap'].unique())
         selected_platform = st.sidebar.selectbox("Select a Market Cap", platform_options)
@@ -158,9 +173,12 @@ elif page == "Live Position":
             top_gainer = None
             top_looser = None
 
+        total_percentage_gain = filtered_data['Current Value'].sum()
+        print("Total Percentage Gain:",total_percentage_gain)
+        print(filtered_data['Current Value'].sum()) 
+       
         # Display the metric
         col1, col2, col3,col4 = st.columns(4)       
-      
         col3.metric("Top Gainer", f"₹{top_gainer:,.2f}%" if top_gainer is not None else "N/A", help=f"Value: ₹{top_gainer:,.2f}" if top_gainer is not None else "N/A")
         col4.metric("Top Looser", f"₹{top_looser:,.2f}%" if top_looser is not None else "N/A", help=f"Value: ₹{top_looser:,.2f}" if top_looser is not None else "N/A")
 
@@ -179,7 +197,7 @@ elif page == "Live Position":
             st.bar_chart(platform_counts)
         with col3:
             st.write("Platform Distribution")
-            platform_counts = filtered_data['broker'].value_counts()
+            platform_counts = filtered_data['Broker'].value_counts()
             st.bar_chart(platform_counts)  
 
     except Exception as e:
@@ -187,6 +205,12 @@ elif page == "Live Position":
 # ...existing code...
 
 st.sidebar.divider()
+
+# Add logout button
+if st.sidebar.button("🚪 Logout"):
+    st.session_state.authenticated = False
+    st.session_state.username = ""
+    st.rerun()
 
 st.sidebar.title("Terms and Conditions:")
 st.sidebar.text("All Data is Personal Trade data and not advisory in any form.") 
