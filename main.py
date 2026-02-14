@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 from chat_component import render_stock_chat
+from openai import OpenAI
 
 st.set_page_config(layout="wide")
 

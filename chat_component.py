@@ -18,7 +18,7 @@ def analyze_stock(question, api_key, model="gpt-3.5-turbo"):
     Args:
         question: User's question
         api_key: OpenAI API key
-        model: Model to use (gpt-3.5-turbo recommended)
+        model: Model to use 
     
     Returns:
         AI response
