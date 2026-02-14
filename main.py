@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+from chat_component import render_stock_chat
 
 st.set_page_config(layout="wide")
 
@@ -42,7 +43,7 @@ st.sidebar.divider()
 
 # Page navigation
 st.set_page_config(layout="wide")
-page = st.sidebar.radio("📊 Menu", ["Live Position","Dashboard","Strategy"])
+page = st.sidebar.radio("📊 Menu", ["Live Position","Dashboard","Strategy","AI Analyst"])
 
 if page == "Dashboard":
     st.title("Dashboard")
@@ -203,6 +204,17 @@ elif page == "Live Position":
     except Exception as e:
         st.error("Error loading live position data")
 # ...existing code...
+
+elif page == "AI Analyst":
+    api_key = st.secrets["aikey"]["api_key"]
+    model = "gpt-4o-mini"
+
+    # Chat box at the bottom
+    if api_key:       
+        render_stock_chat(api_key, model)
+    else:
+        st.info("👈 Subscribe to Plan")
+ 
 elif page == "Strategy":
     with st.expander("Reverse Head & Shoulders"):
         st.markdown("""
@@ -223,7 +235,7 @@ elif page == "Strategy":
         - A **Head** (the lowest point)
         - A **Right Shoulder**
 
-        However, for us to consider it a **“Vivek Singhal” RHS**, it must meet **strict criteria**. """)
+        However, for us to consider it a **RHS**, it must meet **strict criteria**. """)
 
         st.subheader("📏 The 180-Degree Neckline")
         st.markdown("""
