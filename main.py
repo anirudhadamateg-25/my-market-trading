@@ -258,7 +258,7 @@ elif page == "Strategy":
         # --------------------------------------------------
         # Section 2
         # --------------------------------------------------
-        st.subheader("💎 2. The Fundamental Filter (The V40 Rule)")
+        st.subheader("💎 2. The Fundamental Filter")
 
         st.markdown("""
         We **never apply technical patterns to junk stocks**.
@@ -266,7 +266,6 @@ elif page == "Strategy":
         """)
 
         st.markdown("""
-        - 🏛️ **V40 or V40 Next companies**
         - 💼 **Financially stable businesses**
         """)
 
